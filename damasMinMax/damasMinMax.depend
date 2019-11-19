@@ -1,0 +1,17 @@
+# depslib dependency file v1.0
+1574179820 source:c:\users\yan\documents\iajogos\damasminmax\damasminmax\damacompc2.cpp
+	"functions.h"
+
+1574179890 c:\users\yan\documents\iajogos\damasminmax\damasminmax\functions.h
+	<vector>
+	<iostream>
+	"celula.h"
+
+1574179242 c:\users\yan\documents\iajogos\damasminmax\damasminmax\celula.h
+
+1574179231 source:c:\users\yan\documents\iajogos\damasminmax\damasminmax\celula.cpp
+	"celula.h"
+
+1574179884 source:c:\users\yan\documents\iajogos\damasminmax\damasminmax\functions.cpp
+	"functions.h"
+
