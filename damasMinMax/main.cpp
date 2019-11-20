@@ -12,10 +12,22 @@ int main()
     }
     criarTabuleiro(dama);
     exibir(dama);
-    int v;
-    cout<<"digite (1) se voce quer jogar contra o computador ou digite (2) se voce quer jogar player vs player: ";
-    cin>> v;
 
+    //campo de testes
+    cout<<"teste de movimentação simples, insira posição inicial: "<<endl;
+    posicao inicial;
+    posicao final;
+    char cast;
+    cin>>inicial.x>>cast;
+    inicial.y= cast - '0'- 49;
+    inicial.x = inicial.x-1;
+    cout<<"insira o destino: "<<endl;
+    cin>>final.x>>cast;
+    final.y=cast - '0'- 49;
+    final.x=final.x-1;
+    cout<<inicial.y<<" "<<final.y<<endl;
+    movimentacaoSimples(dama,inicial,final);
+    //exibir(dama);
     return 0;
 }
 
