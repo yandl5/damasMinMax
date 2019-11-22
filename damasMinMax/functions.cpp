@@ -1,4 +1,4 @@
-#include "functions.h"
+ #include "functions.h"
 
 void criarTabuleiro(vector<vector<celula> > &dama)
 {
@@ -86,7 +86,21 @@ bool validadorMovimentacaoSimples(vector<vector<celula> > dama, posicao inicial,
     {
         if(dama[final.x][final.y].getValor()==' ')
         {
-            return true;
+        	//não é permitido voltar para trás no movimento simples
+        	if(dama[inicial.x][inicial.y].getValor()=='x'&&(inicial.x-final.x==1))
+		    {
+		    	cout<<"Não é permitido voltar em movimento simples"<<endl;
+		    	return false;
+		    }
+		    else if(dama[inicial.x][inicial.y].getValor()=='o'&&(inicial.x-final.x==-1))
+		    {
+		    	cout<<"Não é permitido voltar em movimento simples"<<endl;
+		    	return false;
+		    }
+		    else
+		    {
+            	return true;
+            }
         }
         else
         {
@@ -97,6 +111,8 @@ bool validadorMovimentacaoSimples(vector<vector<celula> > dama, posicao inicial,
     {
         return false;
     }
+    //não é permitido voltar para trás no movimento simples
+
 }
 void movimentacaoSimples(vector<vector<celula> > &dama, posicao inicial, posicao final)
 {
@@ -110,5 +126,28 @@ void movimentacaoSimples(vector<vector<celula> > &dama, posicao inicial, posicao
     dama[final.x][final.y].setValor(aux);
     dama[inicial.x][inicial.y].setValor(' ');
     exibir(dama);
+}
+
+//função de teste provisório
+void gameTeste(vector<vector<celula> > &dama)
+{
+	cout<<"teste de movimentação simples, insira posição inicial: "<<endl;
+    posicao inicial;
+    posicao final;
+    char cast;
+    cin>>inicial.x>>cast;
+    inicial.y= cast - '0'- 49;
+    inicial.x = inicial.x-1;
+    cout<<"insira o destino: "<<endl;
+    cin>>final.x>>cast;
+    final.y=cast - '0'- 49;
+    final.x=final.x-1;
+    movimentacaoSimples(dama,inicial,final);
+    cout<<"................................................................."<<endl;
+    gameTeste(dama);
+}
+void gerenciadorMovimento(vector<vector<celula> > &dama, posicao inicial, posicao final)
+{
+
 }
 
