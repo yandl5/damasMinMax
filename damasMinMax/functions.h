@@ -12,3 +12,5 @@ void criarTabuleiro(vector<vector<celula> > &dama);
 void movimentacaoSimples(vector<vector<celula> > &dama, posicao inicial, posicao final);
 bool validadorMovimentacaoSimples(vector<vector<celula> > dama, posicao inicial, posicao final);
 void gameTeste(vector<vector<celula> > &dama);
+void gerenciadorMovimento(vector<vector<celula> > &dama, posicao inicial, posicao final);
+bool testarRange(posicao inicial,posicao final);
