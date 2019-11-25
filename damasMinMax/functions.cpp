@@ -1,4 +1,7 @@
  #include "functions.h"
+int conto=12;
+int contx=12;
+int contGame=0;
 
 void criarTabuleiro(vector<vector<celula> > &dama)
 {
@@ -164,7 +167,7 @@ bool validadorComerPeca(vector<vector<celula> > &dama, posicao inicial, posicao 
         return false;
     }	
 }
-void comerPecaSimples(vector<vector<celula> > &dama, posicao inicial, posicao final)
+void comerPecaSimples(vector<vector<celula> > &dama, posicao inicial, posicao final,bool &flagMultiplo)
 {
 	if(validadorMovimentacaoSimples(dama,inicial,final)==false)
     {
@@ -179,13 +182,43 @@ void comerPecaSimples(vector<vector<celula> > &dama, posicao inicial, posicao fi
     aux = dama[inicial.x][inicial.y].getValor();
     dama[final.x][final.y].setValor(aux);
     dama[inicial.x][inicial.y].setValor(' ');
+    if(dama[x][y].getValor()=='x')
+    {
+    	contx--;
+    }
+    else
+    {
+    	conto--;
+    }
     dama[x][y].setValor(' ');
+    flagMultiplo=true;
 }
 
 //função de teste provisório
 void gameTeste(vector<vector<celula> > &dama)
 {
-	cout<<"teste de movimentação simples, insira posição inicial: "<<endl;
+	//verificar vitória:
+	if(conto==0)
+	{
+		cout<<"Vitória jogador 1(o)"<<endl;
+		return;
+	}
+	else if(contx==0)
+	{
+		cout<<"Vitória jogador 2(x)"<<endl;
+		return;
+	}
+
+	if(contGame%2==0)
+	{
+		cout<<"Jogador 1(o) faça seu movimento: "<<endl;
+	}
+	else
+	{
+		cout<<"Jogador 2(x) faça seu movimento: "<<endl;
+	}
+	//receber peça e destino.
+	cout<<"Posição inicial: "<<endl;
     posicao inicial;
     posicao final;
     char cast;
@@ -196,12 +229,31 @@ void gameTeste(vector<vector<celula> > &dama)
     cin>>final.x>>cast;
     final.y=cast - '0'- 49;
     final.x=final.x-1;
-    gerenciadorMovimento(dama,inicial,final);
+
+    //verificar se a peça é válida, se corresponde ao turno
+    if(!verificarPeca(dama,inicial))
+    {
+    	cout<<"Peça selecionada inválida, escolha uma peça válida"<<endl;
+    	gameTeste(dama);
+    }
+    //verificar se o jogador pode jogar novamente, válido após comer uma peça e tenha outra possível para comer
+    bool flagMultiplo;
+    gerenciadorMovimento(dama,inicial,final,flagMultiplo);
     exibir(dama);
+    testeMultiplo(dama,final);
+    if(flagMultiplo)
+    {
+    	gameTeste(dama);
+    }
+    else
+    {
+    	contGame++;
+    	gameTeste(dama);
+    }
     cout<<"................................................................."<<endl;
     gameTeste(dama);
 }
-void gerenciadorMovimento(vector<vector<celula> > &dama, posicao inicial, posicao final)
+void gerenciadorMovimento(vector<vector<celula> > &dama, posicao inicial, posicao final,bool &flagMultiplo)
 {
 	int difX=final.x-inicial.x;
 	int difY=final.y-inicial.y;
@@ -209,13 +261,15 @@ void gerenciadorMovimento(vector<vector<celula> > &dama, posicao inicial, posica
 	if((difX==1||difX==-1)&&(difY==1||difY==-1))
 	{
 		movimentacaoSimples(dama,inicial,final);
+		flagMultiplo=false;
 	}
 	if((difX==2||difX==-2)&&(difY==2||difY==-2))
 	{
-		comerPecaSimples(dama,inicial,final);
+		comerPecaSimples(dama,inicial,final,flagMultiplo);
 	}
 	else
 	{
+		flagMultiplo=false;
 		cout<<"movimento inválido"<<endl;
 	}
 }
@@ -231,4 +285,26 @@ bool testarRange(posicao inicial, posicao final)
     {
     	return true;
     }
+}
+bool verificarPeca(vector<vector<celula> > &dama, posicao inicial)
+{
+	if(contGame%2==0&&dama[inicial.x][inicial.y].getValor()=='o')
+	{
+		return true;
+	}
+	else if(contGame%2==1&&dama[inicial.x][inicial.y].getValor()=='x')
+	{
+		return true;
+	}
+	return false;
+}
+bool testeMultiplo(vector<vector<celula> > &dama, posicao final)
+{
+	//(+2,+2),(+2,-2),(-2,+2),(-2,-2).
+
+	//if(validadorComerPeca(dama,final,?))
+	//{
+	//	return true;
+	//}
+	return false;
 }
