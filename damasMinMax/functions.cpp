@@ -2,6 +2,7 @@
 int conto=12;
 int contx=12;
 int contGame=0;
+bool pc=false;
 
 void criarTabuleiro(vector<vector<celula> > &dama)
 {
@@ -163,16 +164,26 @@ bool validadorComerPeca(vector<vector<celula> > &dama, posicao inicial, posicao 
     {
         if(dama[final.x][final.y].getValor()==' ')
         {
+			//verificar peça meio
         	int x = inicial.x+((final.x-inicial.x)/2);
     		int y= inicial.y+((final.y-inicial.y)/2);
-        	if(dama[inicial.x][inicial.y].getValor()=='x'&&dama[x][y].getValor()=='o')
+			//verificar as 4 possibilidades
+        	if(dama[inicial.x][inicial.y].getValor()=='x'&&(dama[x][y].getValor()=='o'||dama[x][y].getValor()=='O'))
 		    {
 		    	return true;
 		    }
-		    else if(dama[inicial.x][inicial.y].getValor()=='o'&&dama[x][y].getValor()=='x')
+		    else if(dama[inicial.x][inicial.y].getValor()=='o'&&(dama[x][y].getValor()=='x'||dama[x][y].getValor()=='X'))
 		    {
 		    	return true;
 		    }
+			else if(dama[inicial.x][inicial.y].getValor()=='X'&&(dama[x][y].getValor()=='o'||dama[x][y].getValor()=='O'))
+			{
+				return  true;
+			}
+			else if(dama[inicial.x][inicial.y].getValor()=='O'&&(dama[x][y].getValor()=='x'||dama[x][y].getValor()=='X'))
+			{
+				return true;
+			}
 		    else
 		    {
             	return false;
@@ -190,7 +201,7 @@ bool validadorComerPeca(vector<vector<celula> > &dama, posicao inicial, posicao 
 }
 void comerPecaSimples(vector<vector<celula> > &dama, posicao inicial, posicao final,bool &flagMultiplo)
 {
-	if(validadorMovimentacaoSimples(dama,inicial,final)==false)
+	if(validadorComerPeca(dama,inicial,final)==false)
     {
         cout<<"movimento não válido"<<endl;
         return;
@@ -241,25 +252,35 @@ void comerPecaSimples(vector<vector<celula> > &dama, posicao inicial, posicao fi
 //função de teste provisório
 void gameTeste(vector<vector<celula> > &dama)
 {
-	//verificar vitória:
+	//verificar vitória(o):
 	if(conto==0)
 	{
 		cout<<"Vitória jogador 1(o)"<<endl;
 		return;
 	}
+	//verificar vitória(x)
 	else if(contx==0)
 	{
 		cout<<"Vitória jogador 2(x)"<<endl;
 		return;
 	}
-
+	//movimentos pares são bola
 	if(contGame%2==0)
 	{
 		cout<<"Jogador 1(o) faça seu movimento: "<<endl;
 	}
+	//movimento ímpar são x, com a ressalva que o pc só assume x
 	else
 	{
-		cout<<"Jogador 2(x) faça seu movimento: "<<endl;
+		if(pc=true)
+		{
+			cout<<"O computador está computando o movimento..."<<endl;
+			gerenciadorPC(dama);
+		}
+		else
+		{
+			cout<<"Jogador 2(x) faça seu movimento: "<<endl;
+		}
 	}
 	//receber peça e destino.
 	cout<<"Posição inicial: "<<endl;
@@ -376,6 +397,14 @@ bool testeMultiplo(vector<vector<celula> > &dama, posicao final)
 		return true;
 	}
 	return false;
+}
+void pcPlay()
+{
+	pc=true;
+}
+void gerenciadorPC(vector<vector<celula> > &dama)
+{
+	
 }
 
 

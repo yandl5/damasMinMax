@@ -10,10 +10,26 @@ int main()
     {
         dama[i].resize(8);
     }
+	cout<<"Você deseja jogar o modo pvp ou o modo single player?"<<endl;
+	cout<<"Digite 1 para pvp e 2 para single player."<<endl;
+	int aux;
+	cin>>aux;
+	if(aux==1)
+	{
+		
+	}
     criarTabuleiro(dama);
     exibir(dama);
     cout<<"................................................................."<<endl;
-    gameTeste(dama);
+    if(aux==1)
+	{
+		gameTeste(dama);
+	}
+	else
+	{
+		pcPlay();
+		gameTeste(dama);
+	}
     //campo de testes
     
     //exibir(dama);
