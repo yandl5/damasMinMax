@@ -412,7 +412,12 @@ void gerenciadorPC(vector<vector<celula> > &dama)
 	//primeiro é necessário contabilizar todas as peças x ou X do tabuleiro, serão anotadas em um vector<posicao>
 	vector<posicao> pecasPC;
 	listarPecas(dama,pecasPC);
-	
+	//verificar a quantidade de peças que cada célula é capaz de comer
+	for(unsigned int i=0;i<pecasPC.size();i++)
+	{
+		dama[pecasPC[i].x][pecasPC[i].y].setX(quantidadeMax(dama,pecasPC[i],pecasPC[i],0));
+		cout<<dama[pecasPC[i].x][pecasPC[i].y].getX()<<endl;
+	}
 }
 //lista todas as peças do pc em campo
 void listarPecas(vector<vector<celula> > &dama, vector<posicao> &pecasPC)
@@ -431,7 +436,69 @@ void listarPecas(vector<vector<celula> > &dama, vector<posicao> &pecasPC)
 		}
 	}
 }
-
+//função que verifica a quantidade de peças q uma célula pode comer
+int quantidadeMax(vector<vector<celula> > &dama, posicao &peca,posicao &anterior, int x)
+{
+	posicao aux;
+	//pode comer na direção nordeste?
+	aux.x = peca.x-2;
+	aux.y = peca.y+2;
+	if(Teste(dama,peca,aux))
+	{
+		if(aux.x!=anterior.x&&aux.y!=anterior.y)
+			return quantidadeMax(dama,aux,peca,x+1);
+	}
+	aux.x = peca.x+2;
+	aux.y = peca.y+2;
+	//pode comer na direção sudeste?
+	if(Teste(dama,peca,aux))
+	{
+		if(aux.x!=anterior.x&&aux.y!=anterior.y)
+			return quantidadeMax(dama,aux,peca,x+1);
+	}
+	aux.x = peca.x-2;
+	aux.y = peca.y-2;
+	//pode comer na direção noroeste?
+	if(Teste(dama,peca,aux))
+	{
+		if(aux.x!=anterior.x&&aux.y!=anterior.y)
+			return quantidadeMax(dama,aux,peca,x+1);
+	}
+	aux.x = peca.x+2;
+	aux.y = peca.y-2;
+	//pode comer na direção sudoeste?
+	if(Teste(dama,peca,aux))
+	{
+		if(aux.x!=anterior.x&&aux.y!=anterior.y)
+			return quantidadeMax(dama,aux,anterior,x+1);
+	}
+	return x;
+}
+//pode comer para pc.
+bool Teste(vector<vector<celula> > &dama,posicao &inicial, posicao &final)
+{
+	if(testarRange(inicial,final))
+	{
+		int x = inicial.x+((final.x-inicial.x)/2);
+    	int y = inicial.y+((final.y-inicial.y)/2);
+    	if(dama[x][y].getValor()=='o'||dama[x][y].getValor()=='O')
+    	{
+    		if(dama[final.x][final.y].getValor()==' ')
+    		{
+    			return true;
+    		}
+    		else
+    		{
+    			return false;
+    		}
+    	}
+    	else
+    	{
+    		return false;
+    	}
+	}
+	return false;
+}
 
 
 

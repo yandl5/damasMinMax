@@ -19,3 +19,5 @@ bool testeMultiplo(vector<vector<celula> > &dama, posicao final);
 void pcPlay(vector<vector<celula> > &dama);
 void gerenciadorPC(vector<vector<celula> > &dama);
 void listarPecas(vector<vector<celula> > &dama, vector<posicao> &pecasPC);
+int quantidadeMax(vector<vector<celula> > &dama, posicao &peca,posicao &anterior, int x);
+bool Teste(vector<vector<celula> > &dama,posicao &inicial, posicao &final);
