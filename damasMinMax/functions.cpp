@@ -85,12 +85,16 @@ bool validadorMovimentacaoSimples(vector<vector<celula> > dama, posicao inicial,
         return false;
     }
     //testar movimento
-    if(dama[inicial.x][inicial.y].getValor()=='o'||dama[inicial.x][inicial.y].getValor()=='x')
+    if(dama[inicial.x][inicial.y].getValor()!=' '&&dama[inicial.x][inicial.y].getValor()!='*')
     {
         if(dama[final.x][final.y].getValor()==' ')
         {
+			if(dama[inicial.x][inicial.y].getTipo()=='d')
+			{
+				return true;
+			}
         	//não é permitido voltar para trás no movimento simples
-        	if(dama[inicial.x][inicial.y].getValor()=='x'&&(inicial.x-final.x==1))
+        	else if(dama[inicial.x][inicial.y].getValor()=='x'&&(inicial.x-final.x==1))
 		    {
 		    	cout<<"Não é permitido voltar em movimento simples"<<endl;
 		    	return false;
@@ -114,7 +118,6 @@ bool validadorMovimentacaoSimples(vector<vector<celula> > dama, posicao inicial,
     {
         return false;
     }
-    //não é permitido voltar para trás no movimento simples
 
 }
 void movimentacaoSimples(vector<vector<celula> > &dama, posicao inicial, posicao final)
@@ -122,12 +125,31 @@ void movimentacaoSimples(vector<vector<celula> > &dama, posicao inicial, posicao
     if(validadorMovimentacaoSimples(dama,inicial,final)==false)
     {
         cout<<"movimento não válido"<<endl;
-        return;
+		exibir(dama);
+        gameTeste(dama);
     }
     char aux;
     aux = dama[inicial.x][inicial.y].getValor();
     dama[final.x][final.y].setValor(aux);
     dama[inicial.x][inicial.y].setValor(' ');
+	//verifica se a peça era uma dama
+	if(dama[inicial.x][inicial.y].getTipo()=='d')
+	{
+		dama[inicial.x][inicial.y].setTipo(' ');
+		dama[final.x][final.y].setTipo('d');
+	}
+	
+	//teste para promoção de peça em dama
+	if(final.x==0&&dama[final.x][final.y].getValor()=='o')
+	{
+		dama[final.x][final.y].setTipo('d');
+		dama[final.x][final.y].setValor('O');
+	}
+	if(final.x==7&&dama[final.x][final.y].getValor()=='x')
+	{
+		dama[final.x][final.y].setTipo('d');
+		dama[final.x][final.y].setValor('X');
+	}
 }
 //comer peça unitária
 bool validadorComerPeca(vector<vector<celula> > &dama, posicao inicial, posicao final)
@@ -137,11 +159,10 @@ bool validadorComerPeca(vector<vector<celula> > &dama, posicao inicial, posicao 
     {
         return false;
     }
-    if(dama[inicial.x][inicial.y].getValor()=='o'||dama[inicial.x][inicial.y].getValor()=='x')
+    if(dama[inicial.x][inicial.y].getValor()!=' '&&dama[inicial.x][inicial.y].getValor()!='*')
     {
         if(dama[final.x][final.y].getValor()==' ')
         {
-        	//não é permitido voltar para trás no movimento simples
         	int x = inicial.x+((final.x-inicial.x)/2);
     		int y= inicial.y+((final.y-inicial.y)/2);
         	if(dama[inicial.x][inicial.y].getValor()=='x'&&dama[x][y].getValor()=='o')
@@ -182,7 +203,7 @@ void comerPecaSimples(vector<vector<celula> > &dama, posicao inicial, posicao fi
     aux = dama[inicial.x][inicial.y].getValor();
     dama[final.x][final.y].setValor(aux);
     dama[inicial.x][inicial.y].setValor(' ');
-    if(dama[x][y].getValor()=='x')
+    if(dama[x][y].getValor()=='x'||dama[x][y].getValor()=='X')
     {
     	contx--;
     }
@@ -192,6 +213,29 @@ void comerPecaSimples(vector<vector<celula> > &dama, posicao inicial, posicao fi
     }
     dama[x][y].setValor(' ');
     flagMultiplo=true;
+	//verifica se a peça era uma dama
+	if(dama[inicial.x][inicial.y].getTipo()=='d')
+	{
+		dama[inicial.x][inicial.y].setTipo(' ');
+		dama[final.x][final.y].setTipo('d');
+	}
+	
+	//teste para promoção de peça em dama
+	if(final.x==0&&dama[final.x][final.y].getValor()=='o')
+	{
+		dama[final.x][final.y].setTipo('d');
+		dama[final.x][final.y].setValor('O');
+	}
+	if(final.x==7&&dama[final.x][final.y].getValor()=='x')
+	{
+		dama[final.x][final.y].setTipo('d');
+		dama[final.x][final.y].setValor('X');
+	}
+	//verifica se a peça comida era um dama
+	if(dama[x][y].getTipo()=='d')
+	{
+		dama[x][y].setTipo(' ');
+	}
 }
 
 //função de teste provisório
@@ -243,13 +287,18 @@ void gameTeste(vector<vector<celula> > &dama)
     testeMultiplo(dama,final);
     if(flagMultiplo)
     {
-    	gameTeste(dama);
+		if(testeMultiplo(dama,final)){
+			cout<<"................................................................."<<endl;
+    		gameTeste(dama);
+		}
     }
     else
     {
     	contGame++;
+		cout<<"................................................................."<<endl;
     	gameTeste(dama);
     }
+	contGame++;
     cout<<"................................................................."<<endl;
     gameTeste(dama);
 }
@@ -263,14 +312,14 @@ void gerenciadorMovimento(vector<vector<celula> > &dama, posicao inicial, posica
 		movimentacaoSimples(dama,inicial,final);
 		flagMultiplo=false;
 	}
-	if((difX==2||difX==-2)&&(difY==2||difY==-2))
+	else if((difX==2||difX==-2)&&(difY==2||difY==-2))
 	{
 		comerPecaSimples(dama,inicial,final,flagMultiplo);
 	}
 	else
 	{
-		flagMultiplo=false;
 		cout<<"movimento inválido"<<endl;
+		gameTeste(dama);
 	}
 }
 
@@ -288,11 +337,11 @@ bool testarRange(posicao inicial, posicao final)
 }
 bool verificarPeca(vector<vector<celula> > &dama, posicao inicial)
 {
-	if(contGame%2==0&&dama[inicial.x][inicial.y].getValor()=='o')
+	if(contGame%2==0&&(dama[inicial.x][inicial.y].getValor()=='o'||dama[inicial.x][inicial.y].getValor()=='O'))
 	{
 		return true;
 	}
-	else if(contGame%2==1&&dama[inicial.x][inicial.y].getValor()=='x')
+	else if(contGame%2==1&&(dama[inicial.x][inicial.y].getValor()=='x'||dama[inicial.x][inicial.y].getValor()=='X'))
 	{
 		return true;
 	}
@@ -301,10 +350,39 @@ bool verificarPeca(vector<vector<celula> > &dama, posicao inicial)
 bool testeMultiplo(vector<vector<celula> > &dama, posicao final)
 {
 	//(+2,+2),(+2,-2),(-2,+2),(-2,-2).
-
-	//if(validadorComerPeca(dama,final,?))
-	//{
-	//	return true;
-	//}
+	posicao a;
+	a.x=final.x+2;
+	a.y=final.y+2;
+	if(validadorComerPeca(dama,final,a))
+	{
+		return true;
+	}
+	a.x=final.x+2;
+	a.y=final.y-2;
+	if(validadorComerPeca(dama,final,a))
+	{
+		return true;
+	}
+	a.x=final.x-2;
+	a.y=final.y+2;
+	if(validadorComerPeca(dama,final,a))
+	{
+		return true;
+	}
+	a.x=final.x-2;
+	a.y=final.y-2;
+	if(validadorComerPeca(dama,final,a))
+	{
+		return true;
+	}
 	return false;
 }
+
+
+
+
+
+
+
+
+
