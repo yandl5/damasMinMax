@@ -16,5 +16,6 @@ void gerenciadorMovimento(vector<vector<celula> > &dama, posicao inicial, posica
 bool testarRange(posicao inicial,posicao final);
 bool verificarPeca(vector<vector<celula> > &dama, posicao inicial);
 bool testeMultiplo(vector<vector<celula> > &dama, posicao final);
-void pcPlay();
+void pcPlay(vector<vector<celula> > &dama);
 void gerenciadorPC(vector<vector<celula> > &dama);
+void listarPecas(vector<vector<celula> > &dama, vector<posicao> &pecasPC);

@@ -272,7 +272,7 @@ void gameTeste(vector<vector<celula> > &dama)
 	//movimento ímpar são x, com a ressalva que o pc só assume x
 	else
 	{
-		if(pc=true)
+		if(pc==true)
 		{
 			cout<<"O computador está computando o movimento..."<<endl;
 			gerenciadorPC(dama);
@@ -398,13 +398,38 @@ bool testeMultiplo(vector<vector<celula> > &dama, posicao final)
 	}
 	return false;
 }
-void pcPlay()
+
+//Parte de IA do computador
+//primeira chamada só para fixar o jogo entre homem e pc
+void pcPlay(vector<vector<celula> > &dama)
 {
 	pc=true;
+	gameTeste(dama);
 }
+//gerenciador base do pc
 void gerenciadorPC(vector<vector<celula> > &dama)
 {
+	//primeiro é necessário contabilizar todas as peças x ou X do tabuleiro, serão anotadas em um vector<posicao>
+	vector<posicao> pecasPC;
+	listarPecas(dama,pecasPC);
 	
+}
+//lista todas as peças do pc em campo
+void listarPecas(vector<vector<celula> > &dama, vector<posicao> &pecasPC)
+{
+	posicao aux;
+	for(unsigned int i=0; i<dama.size();i++)
+	{
+		for(unsigned int j=0;j<dama[i].size();j++)
+		{
+			if(dama[i][j].getValor()=='x'||dama[i][j].getValor()=='X')
+			{
+				aux.x=i;
+				aux.y=j;
+				pecasPC.push_back(aux);
+			}
+		}
+	}
 }
 
 

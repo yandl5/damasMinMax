@@ -27,8 +27,8 @@ int main()
 	}
 	else
 	{
-		pcPlay();
-		gameTeste(dama);
+		
+		pcPlay(dama);
 	}
     //campo de testes
     
