@@ -4,6 +4,7 @@ int contx=12;
 int contGame=0;
 bool pc=false;
 
+
 void criarTabuleiro(vector<vector<celula> > &dama)
 {
 	for (int i=0; i<3; i++)
@@ -20,7 +21,7 @@ void criarTabuleiro(vector<vector<celula> > &dama)
 
             }
             else
-                dama[i][j].setValor('*');
+                dama[i][j].setValor('|');
         }
     }
     for (int i=5; i<8; i++)
@@ -37,7 +38,7 @@ void criarTabuleiro(vector<vector<celula> > &dama)
 
             }
             else
-                dama[i][j].setValor('*');
+                dama[i][j].setValor('|');
         }
     }
     for (int i=3; i<5; i++)
@@ -47,7 +48,7 @@ void criarTabuleiro(vector<vector<celula> > &dama)
             if(i==3 && j%2==0)
                 dama[i][j].setValor(' ');
             else
-                dama[i][j].setValor('*');
+                dama[i][j].setValor('|');
 
         }
         for (int j=0; j<8; j++)
@@ -55,7 +56,7 @@ void criarTabuleiro(vector<vector<celula> > &dama)
             if(i==4 && j%2!=0)
                 dama[i][j].setValor(' ');
             else if(i==4)
-                dama[i][j].setValor('*');
+                dama[i][j].setValor('|');
 
         }
     }
@@ -416,7 +417,7 @@ void gerenciadorPC(vector<vector<celula> > &dama)
 	for(unsigned int i=0;i<pecasPC.size();i++)
 	{
 		dama[pecasPC[i].x][pecasPC[i].y].setX(quantidadeMax(dama,pecasPC[i],pecasPC[i],0));
-		cout<<dama[pecasPC[i].x][pecasPC[i].y].getX()<<endl;
+		cout<< pecasPC[i].x<<" "<<pecasPC[i].y<<" | "<<dama[pecasPC[i].x][pecasPC[i].y].getX()<<endl;
 	}
 }
 //lista todas as peças do pc em campo
@@ -437,40 +438,57 @@ void listarPecas(vector<vector<celula> > &dama, vector<posicao> &pecasPC)
 	}
 }
 //função que verifica a quantidade de peças q uma célula pode comer
-int quantidadeMax(vector<vector<celula> > &dama, posicao &peca,posicao &anterior, int x)
+int quantidadeMax(vector<vector<celula> > &dama, posicao &peca, posicao &anterior, int x)
 {
 	posicao aux;
+
 	//pode comer na direção nordeste?
 	aux.x = peca.x-2;
 	aux.y = peca.y+2;
 	if(Teste(dama,peca,aux))
 	{
-		if(aux.x!=anterior.x&&aux.y!=anterior.y)
+		cout<<"NE externo"<<aux.x<<":"<<aux.y<<endl;
+		if(aux.x!=anterior.x || aux.y!=anterior.y)
+		{
+			cout<<"NE entrou |"<<aux.x<<":"<<aux.y<<endl;
 			return quantidadeMax(dama,aux,peca,x+1);
+		}
 	}
 	aux.x = peca.x+2;
 	aux.y = peca.y+2;
 	//pode comer na direção sudeste?
 	if(Teste(dama,peca,aux))
 	{
-		if(aux.x!=anterior.x&&aux.y!=anterior.y)
+		cout<<"SE externo"<<aux.x<<":"<<aux.y<<endl;
+		if(aux.x!=anterior.x || aux.y!=anterior.y)
+		{
+			cout<<"SE entrou |"<<aux.x<<":"<<aux.y<<endl;
 			return quantidadeMax(dama,aux,peca,x+1);
+		}
 	}
 	aux.x = peca.x-2;
 	aux.y = peca.y-2;
 	//pode comer na direção noroeste?
 	if(Teste(dama,peca,aux))
 	{
-		if(aux.x!=anterior.x&&aux.y!=anterior.y)
+		cout<<"NO externo"<<aux.x<<":"<<aux.y<<endl;
+		if(aux.x!=anterior.x || aux.y!=anterior.y)
+		{
+			cout<<"NO entrou |"<<aux.x<<":"<<aux.y<<endl;
 			return quantidadeMax(dama,aux,peca,x+1);
+		}
 	}
 	aux.x = peca.x+2;
 	aux.y = peca.y-2;
 	//pode comer na direção sudoeste?
 	if(Teste(dama,peca,aux))
 	{
-		if(aux.x!=anterior.x&&aux.y!=anterior.y)
-			return quantidadeMax(dama,aux,anterior,x+1);
+		cout<<"SO externo"<<aux.x<<":"<<aux.y<<endl;
+		if(aux.x!=anterior.x || aux.y!=anterior.y)
+		{
+			cout<<"SO entrou |"<<aux.x<<":"<<aux.y<<endl;
+			return quantidadeMax(dama,aux,peca,x+1);
+		}
 	}
 	return x;
 }
