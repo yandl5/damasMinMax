@@ -1,10 +1,4 @@
 #include "celula.h"
-celula::celula(char Valor)
-{
-    valor=Valor;
-	x=0;
-	y=0;
-}
 celula::celula(){}
 celula::~celula(){}
 void celula::setValor(char Valor)
@@ -18,6 +12,14 @@ void celula::setTipo(char Tipo)
 void celula::setX(int xx)
 {
 	x=xx;
+}
+void celula::setZ(int zz)
+{
+	z=zz;
+}
+void celula::setCaminho(vector<string> Caminho)
+{
+	caminho=Caminho;
 }
 void celula::setY(int yy)
 {
@@ -38,4 +40,16 @@ int celula::getX()
 int celula::getY()
 {
 	return y;
+}
+int celula::getZ()
+{
+	return z;
+}
+vector<string> celula::getCaminho()
+{
+	return caminho;
+}
+void celula::calcularZ()
+{
+	z=x+y;
 }

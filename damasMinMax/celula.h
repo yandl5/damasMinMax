@@ -1,6 +1,10 @@
 #ifndef PECA
 #define PECA
 //classe peca
+#include <vector>
+#include <string>
+#include <iostream>
+using namespace std;
 class celula
 {
 private:
@@ -9,11 +13,16 @@ private:
     char tipo;
 	//quantidade de peças que a celula é capaz de comer
 	int x;
-	//valor final no destino máximo
+	//valor da penalidade da posição final
 	int y;
+	//valor correspondente a heuristica z=x+y;
+	int z;
+	//caminho da célula até destino máximo
+	vector<string> caminho;
+	
+
 public:
-    //construtores
-    celula(char Valor);
+    //construtor
     celula();
     //destrutor
     ~celula();
@@ -22,10 +31,15 @@ public:
     void setTipo(char Tipo);
 	void setX(int xx);
 	void setY(int yy);
+	void setZ(int zz);
+	void setCaminho(vector<string> Caminho);
     char getValor();
     char getTipo();
 	int getX();
 	int getY();
+	int getZ();
+	vector<string> getCaminho();
+	void calcularZ();
 };
 
 #endif // PECA

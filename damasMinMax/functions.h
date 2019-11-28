@@ -1,6 +1,7 @@
 #include <vector>
 #include <iostream>
 #include "celula.h"
+#include "randomGenerator.h"
 using namespace std;
 struct posicao
 {
@@ -21,3 +22,8 @@ void gerenciadorPC(vector<vector<celula> > &dama);
 void listarPecas(vector<vector<celula> > &dama, vector<posicao> &pecasPC);
 int quantidadeMax(vector<vector<celula> > &dama, posicao &peca,posicao &anterior, int x);
 bool Teste(vector<vector<celula> > &dama,posicao &inicial, posicao &final);
+int calcularY(posicao inicial, vector<string> caminho,vector<vector<celula> > &damaB);
+posicao percorrerCaminho(posicao aux, vector<string> caminho, vector<vector<celula> > &damaB);
+int verificarPosicaoFinalPeca(posicao aux,vector<vector<celula> > &damaB);
+vector<string> pecaMovimentavel(vector<vector<celula> > dama, posicao aux);
+string acharMovimento(vector<vector<celula> > damaB, posicao auxiliar,vector<string>,int &maior);

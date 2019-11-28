@@ -27,7 +27,6 @@ int main()
 	}
 	else
 	{
-		
 		pcPlay(dama);
 	}
     //campo de testes

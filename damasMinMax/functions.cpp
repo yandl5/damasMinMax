@@ -3,7 +3,7 @@ int conto=12;
 int contx=12;
 int contGame=0;
 bool pc=false;
-
+vector<string> iaCaminho;
 
 void criarTabuleiro(vector<vector<celula> > &dama)
 {
@@ -204,14 +204,13 @@ void comerPecaSimples(vector<vector<celula> > &dama, posicao inicial, posicao fi
 {
 	if(validadorComerPeca(dama,inicial,final)==false)
     {
-        cout<<"movimento não válido"<<endl;
         return;
     }
     char aux;
     //posicao do meio entre as peças.
     int x = inicial.x+((final.x-inicial.x)/2);
     int y= inicial.y+((final.y-inicial.y)/2);
-    cout<<x<<" "<<y<<endl;
+    //cout<<x<<" "<<y<<endl;
     aux = dama[inicial.x][inicial.y].getValor();
     dama[final.x][final.y].setValor(aux);
     dama[inicial.x][inicial.y].setValor(' ');
@@ -410,14 +409,41 @@ void pcPlay(vector<vector<celula> > &dama)
 //gerenciador base do pc
 void gerenciadorPC(vector<vector<celula> > &dama)
 {
+	//posicao auxiliar para movimentação simples
+	vector<string> posicoes;
 	//primeiro é necessário contabilizar todas as peças x ou X do tabuleiro, serão anotadas em um vector<posicao>
 	vector<posicao> pecasPC;
 	listarPecas(dama,pecasPC);
 	//verificar a quantidade de peças que cada célula é capaz de comer
+	vector<vector<celula> > damaB = dama;
 	for(unsigned int i=0;i<pecasPC.size();i++)
 	{
+		vector<vector<celula> > damaB = dama;
 		dama[pecasPC[i].x][pecasPC[i].y].setX(quantidadeMax(dama,pecasPC[i],pecasPC[i],0));
-		cout<< pecasPC[i].x<<" "<<pecasPC[i].y<<" | "<<dama[pecasPC[i].x][pecasPC[i].y].getX()<<endl;
+		dama[pecasPC[i].x][pecasPC[i].y].setCaminho(iaCaminho);
+		dama[pecasPC[i].x][pecasPC[i].y].setY(calcularY(pecasPC[i],iaCaminho,damaB));
+		if(iaCaminho.size()==0)
+		{
+			posicoes=pecaMovimentavel(dama,pecasPC[i]);
+			if(posicoes.size()!=0)
+			{
+				int maior;
+				iaCaminho.push_back(acharMovimento(damaB,pecasPC[i],posicoes,maior));
+				dama[pecasPC[i].x][pecasPC[i].y].setZ(maior);
+			}
+			else
+			{
+				dama[pecasPC[i].x][pecasPC[i].y].setZ(-10);
+			}
+		}
+		else
+		{
+			dama[pecasPC[i].x][pecasPC[i].y].calcularZ();
+		}
+		cout<<"Valor da peça "<< pecasPC[i].x<<" "<<pecasPC[i].y<<" | "<<dama[pecasPC[i].x][pecasPC[i].y].getZ()<<endl;
+		posicoes.clear();
+		iaCaminho.clear();
+		damaB=dama;
 	}
 }
 //lista todas as peças do pc em campo
@@ -447,10 +473,9 @@ int quantidadeMax(vector<vector<celula> > &dama, posicao &peca, posicao &anterio
 	aux.y = peca.y+2;
 	if(Teste(dama,peca,aux))
 	{
-		cout<<"NE externo"<<aux.x<<":"<<aux.y<<endl;
 		if(aux.x!=anterior.x || aux.y!=anterior.y)
 		{
-			cout<<"NE entrou |"<<aux.x<<":"<<aux.y<<endl;
+			iaCaminho.push_back("NE");
 			return quantidadeMax(dama,aux,peca,x+1);
 		}
 	}
@@ -459,10 +484,9 @@ int quantidadeMax(vector<vector<celula> > &dama, posicao &peca, posicao &anterio
 	//pode comer na direção sudeste?
 	if(Teste(dama,peca,aux))
 	{
-		cout<<"SE externo"<<aux.x<<":"<<aux.y<<endl;
 		if(aux.x!=anterior.x || aux.y!=anterior.y)
 		{
-			cout<<"SE entrou |"<<aux.x<<":"<<aux.y<<endl;
+			iaCaminho.push_back("SE");
 			return quantidadeMax(dama,aux,peca,x+1);
 		}
 	}
@@ -471,10 +495,9 @@ int quantidadeMax(vector<vector<celula> > &dama, posicao &peca, posicao &anterio
 	//pode comer na direção noroeste?
 	if(Teste(dama,peca,aux))
 	{
-		cout<<"NO externo"<<aux.x<<":"<<aux.y<<endl;
 		if(aux.x!=anterior.x || aux.y!=anterior.y)
 		{
-			cout<<"NO entrou |"<<aux.x<<":"<<aux.y<<endl;
+			iaCaminho.push_back("NO");
 			return quantidadeMax(dama,aux,peca,x+1);
 		}
 	}
@@ -483,10 +506,9 @@ int quantidadeMax(vector<vector<celula> > &dama, posicao &peca, posicao &anterio
 	//pode comer na direção sudoeste?
 	if(Teste(dama,peca,aux))
 	{
-		cout<<"SO externo"<<aux.x<<":"<<aux.y<<endl;
 		if(aux.x!=anterior.x || aux.y!=anterior.y)
 		{
-			cout<<"SO entrou |"<<aux.x<<":"<<aux.y<<endl;
+			iaCaminho.push_back("SO");
 			return quantidadeMax(dama,aux,peca,x+1);
 		}
 	}
@@ -517,6 +539,268 @@ bool Teste(vector<vector<celula> > &dama,posicao &inicial, posicao &final)
 	}
 	return false;
 }
+int calcularY(posicao inicial, vector<string> caminho,vector<vector<celula> > &damaB)
+{
+	if(caminho.size()==0)
+	{
+		return 1;
+	}
+	posicao aux = percorrerCaminho(inicial,caminho,damaB);
+	int y = verificarPosicaoFinalPeca(aux,damaB);
+	return y;
+}
+posicao percorrerCaminho(posicao aux, vector<string> caminho, vector<vector<celula> > &damaB)
+{
+	char valorInicial = damaB[aux.x][aux.y].getValor();
+	for(unsigned int i=0;i<caminho.size();i++)
+	{
+		if(caminho[i]=="NE")
+		{
+			damaB[aux.x][aux.y].setValor(' ');
+			damaB[aux.x-1][aux.y+1].setValor(' ');
+			aux.x = aux.x-2;
+			aux.y = aux.y+2;
+		}
+		else if(caminho[i]=="NO")
+		{
+			damaB[aux.x][aux.y].setValor(' ');
+			damaB[aux.x-1][aux.y-1].setValor(' ');
+			aux.x = aux.x-2;
+			aux.y = aux.y-2;
+		}
+		else if(caminho[i]=="SO")
+		{
+			damaB[aux.x][aux.y].setValor(' ');
+			damaB[aux.x+1][aux.y-1].setValor(' ');
+			aux.x = aux.x+2;
+			aux.y = aux.y-2;
+		}
+		else if(caminho[i]=="SE")
+		{
+			damaB[aux.x][aux.y].setValor(' ');
+			damaB[aux.x+1][aux.y+1].setValor(' ');
+			aux.x = aux.x+2;
+			aux.y = aux.y+2;
+		}
+		damaB[aux.x][aux.y].setValor(valorInicial);
+	}
+	return aux;
+}
+int verificarPosicaoFinalPeca(posicao aux,vector<vector<celula> > &damaB)
+{
+	posicao peca;
+	posicao oposta;
+	//verifica se a nordeste existe uma 'o' que possa comer a peça em questão
+	peca.x=aux.x-1;
+	peca.y=aux.y+1;
+	oposta.x=aux.x+1;
+	oposta.y=aux.x-1;
+	bool a = true;
+	if(validadorComerPeca(damaB,peca,oposta))
+	{
+		comerPecaSimples(damaB,peca,oposta,a);
+		if(testeMultiplo(damaB,oposta))
+		{
+			return -4;
+		}
+		else
+		{
+			return -2;
+		}
+	}
+	//verifica se a noroeste existe uma 'o' que possa comer a peça em questão
+	peca.x=aux.x-1;
+	peca.y=aux.y-1;
+	oposta.x=aux.x+1;
+	oposta.y=aux.y+1;
+	if(validadorComerPeca(damaB,peca,oposta))
+	{
+		comerPecaSimples(damaB,peca,oposta,a);
+		if(testeMultiplo(damaB,oposta))
+		{
+			return -4;
+		}
+		else
+		{
+			return -2;
+		}
+	}
+	//verifica se a sudeste existe uma 'o' que possa comer a peça em questão
+	oposta.x=aux.x-1;
+	oposta.y=aux.y-1;
+	peca.x=aux.x+1;
+	peca.y=aux.y+1;
+	if(validadorComerPeca(damaB,peca,oposta))
+	{
+		comerPecaSimples(damaB,peca,oposta,a);
+		if(testeMultiplo(damaB,oposta))
+		{
+			return -4;
+		}
+		else
+		{
+			return -2;
+		}
+	}
+	//verifica se a sudoeste existe uma 'o' que possa comer a peça em questão
+	oposta.x=aux.x-1;
+	oposta.y=aux.y+1;
+	peca.x=aux.x+1;
+	peca.y=aux.x-1;
+	if(validadorComerPeca(damaB,peca,oposta))
+	{
+		comerPecaSimples(damaB,peca,oposta,a);
+		if(testeMultiplo(damaB,oposta))
+		{
+			return -4;
+		}
+		else
+		{
+			return -2;
+		}
+	}
+	return 2;
+}
+vector<string> pecaMovimentavel(vector<vector<celula> > dama, posicao aux)
+{
+	vector<string> posicoes;
+	//testar se a peça pode se movimentar ou comer em alguma posição
+	//NE
+	posicao teste;
+	teste.x= aux.x-1;
+	teste.y=aux.y+1;
+	if(dama[aux.x][aux.y].getValor()=='X')
+	{
+		if(testarRange(teste,aux))
+		{
+			if(dama[aux.x-1][aux.y+1].getValor()==' ')
+			{
+				posicoes.push_back("NE");
+			}
+		}
+	}
+	//NO
+	teste.x = aux.x-1;
+	teste.y=aux.y -1;
+	if(dama[aux.x][aux.y].getValor()=='X')
+	{
+		if(testarRange(teste,aux))
+		{
+			if(dama[aux.x-1][aux.y-1].getValor()==' ')
+			{
+				posicoes.push_back("NO");
+			}
+		}
+	}
+	//SE
+	teste.x= aux.x+1;
+	teste.y=aux.y+1;
+	if(testarRange(teste,aux))
+	{
+		if(dama[aux.x+1][aux.y+1].getValor()==' ')
+		{
+			posicoes.push_back("SE");
+		}
+	}
+	//SO
+	teste.x= aux.x+1;
+	teste.y=aux.y-1;
+	if(testarRange(teste,aux))
+	{
+		if(dama[aux.x+1][aux.y-1].getValor()==' ')
+		{
+			posicoes.push_back("SO");
+		}
+	}
+	return posicoes;
+}
+string acharMovimento(vector<vector<celula> > damaB, posicao aux, vector<string> posicoes,int &maior)
+{
+	posicao envio;
+	vector<int> scores;
+	vector<vector<celula> > copia = damaB;
+	char valorInicial;
+	//verificar os scores de cada movimentação
+	for(unsigned int i=0;i<posicoes.size();i++)
+	{
+		if(posicoes[i]=="NE")
+		{
+			envio.x=aux.x-1;
+			envio.y=aux.y+1;
+			if(testarRange(envio,aux))
+			{
+				valorInicial = copia[aux.x][aux.y].getValor();
+				copia[aux.x][aux.y].setValor(' ');
+				copia[envio.x][envio.y].setValor(valorInicial);
+				scores.push_back(verificarPosicaoFinalPeca(envio,copia));
+			}
+		}
+		else if(posicoes[i]=="SE")
+		{
+			envio.x=aux.x+1;
+			envio.y=aux.y+1;
+			if(testarRange(envio,aux))
+			{
+				valorInicial = copia[aux.x][aux.y].getValor();
+				copia[aux.x][aux.y].setValor(' ');
+				copia[envio.x][envio.y].setValor(valorInicial);
+				scores.push_back(verificarPosicaoFinalPeca(envio,copia));
+			}
+		}
+		else if(posicoes[i]=="NO")
+		{
+			envio.x=aux.x-1;
+			envio.y=aux.y-1;
+			if(testarRange(envio,aux))
+			{
+				valorInicial = copia[aux.x][aux.y].getValor();
+				copia[aux.x][aux.y].setValor(' ');
+				copia[envio.x][envio.y].setValor(valorInicial);
+				scores.push_back(verificarPosicaoFinalPeca(envio,copia));
+			}
+		}
+		else if(posicoes[i]=="SO")
+		{
+			envio.x=aux.x+1;
+			envio.y=aux.y-1;
+			if(testarRange(envio,aux))
+			{
+				valorInicial = copia[aux.x][aux.y].getValor();
+				copia[aux.x][aux.y].setValor(' ');
+				copia[envio.x][envio.y].setValor(valorInicial);
+				scores.push_back(verificarPosicaoFinalPeca(envio,copia));
+			}
+		}
+		copia=damaB;
+	}
+	//verificar se há um maior score unico
+	maior=scores[0];
+	vector<string> maiores;
+	for(unsigned int i=0;i<scores.size();i++)
+	{
+		if(scores[i]>maior)
+		{
+			maiores.clear();
+			maiores.push_back(posicoes[i]);
+		}
+		else if(scores[i]==maior)
+		{
+			maiores.push_back(posicoes[i]);
+		}
+	}
+	//com os maiores em mãos caso o tamanho do vector seja maior que 1, desempate por aleatoriedade
+	if(maiores.size()==1)
+	{
+		return maiores[0];
+	}
+	else
+	{
+		dado sorteio(maiores.size());
+		return " ";
+		return maiores[sorteio.Jogar()-1];
+	}
+}
+
 
 
 
