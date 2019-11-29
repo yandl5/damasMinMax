@@ -276,6 +276,10 @@ void gameTeste(vector<vector<celula> > &dama)
 		{
 			cout<<"O computador está computando o movimento..."<<endl;
 			gerenciadorPC(dama);
+			contGame++;
+			exibir(dama);
+			cout<<"................................................................."<<endl;
+   			gameTeste(dama);
 		}
 		else
 		{
@@ -368,7 +372,7 @@ bool verificarPeca(vector<vector<celula> > &dama, posicao inicial)
 	}
 	return false;
 }
-bool testeMultiplo(vector<vector<celula> > &dama, posicao final)
+bool testeMultiplo(vector<vector<celula> > dama, posicao final)
 {
 	//(+2,+2),(+2,-2),(-2,+2),(-2,-2).
 	posicao a;
@@ -418,6 +422,7 @@ void gerenciadorPC(vector<vector<celula> > &dama)
 	listarPecas(dama,pecasPC);
 	//verificar a quantidade de peças que cada célula é capaz de comer
 	vector<vector<celula> > damaB = dama;
+	vector<vector<celula> > damaC = dama;
 	for(unsigned int i=0;i<pecasPC.size();i++)
 	{
 		vector<vector<celula> > damaB = dama;
@@ -430,27 +435,55 @@ void gerenciadorPC(vector<vector<celula> > &dama)
 			if(posicoes.size()!=0)
 			{
 				int maior;
-				iaCaminho.push_back(acharMovimento(damaB,pecasPC[i],posicoes,maior));
+				cout<<dama[pecasPC[i].x][pecasPC[i].y].getZ()<<endl;
+				iaCaminho.push_back(acharMovimento(damaC,pecasPC[i],posicoes,maior));
 				dama[pecasPC[i].x][pecasPC[i].y].setZ(maior);
 				dama[pecasPC[i].x][pecasPC[i].y].setCaminho(iaCaminho);
+				dama[pecasPC[i].x][pecasPC[i].y].setTipo(true);
 			}
 			else
 			{
 				dama[pecasPC[i].x][pecasPC[i].y].setZ(-10);
+				dama[pecasPC[i].x][pecasPC[i].y].setCaminho(iaCaminho);
+				dama[pecasPC[i].x][pecasPC[i].y].setTipo(true);
 			}
 		}
 		else
 		{
 			dama[pecasPC[i].x][pecasPC[i].y].calcularZ();
+			dama[pecasPC[i].x][pecasPC[i].y].setTipo(false);
 		}
 		cout<<"Valor da peça "<< pecasPC[i].x<<" "<<pecasPC[i].y<<" | "<<dama[pecasPC[i].x][pecasPC[i].y].getZ()<<endl;
 		posicoes.clear();
 		iaCaminho.clear();
 		damaB=dama;
+		damaC=dama;
 	}
 	//eleger a melhor peça, com base na pontuação
 	melhorPeca = escolherPeca(pecasPC,dama);
 	cout<<"Peça escolhida "<< melhorPeca.x<<" "<<melhorPeca.y<<" | "<<dama[melhorPeca.x][melhorPeca.y].getZ()<<endl;
+	//da melhor peça verificar o tipo e fazer as devidas movimentações.
+	if(dama[melhorPeca.x][melhorPeca.y].getTipo())
+	{
+		autoMovimentacaoSimples(dama,melhorPeca);
+	}
+	else
+	{
+		autoMovimentacaoComplexa(dama,melhorPeca);
+	}
+	//limpando as células.
+	for(unsigned int i=0;i<dama.size();i++)
+	{
+		for(unsigned int j=0;j<dama[i].size();j++)
+		{
+			dama[i][j].setX(0);
+			dama[i][j].setCaminho(iaCaminho);
+			dama[i][j].setY(0);
+			dama[i][j].setZ(0);
+			dama[i][j].setTipo(true);
+		}
+	}
+	pecasPC.clear();
 }
 //lista todas as peças do pc em campo
 void listarPecas(vector<vector<celula> > &dama, vector<posicao> &pecasPC)
@@ -470,7 +503,7 @@ void listarPecas(vector<vector<celula> > &dama, vector<posicao> &pecasPC)
 	}
 }
 //função que verifica a quantidade de peças q uma célula pode comer
-int quantidadeMax(vector<vector<celula> > &dama, posicao &peca, posicao &anterior, int x)
+int quantidadeMax(vector<vector<celula> > &dama, posicao peca, posicao anterior, int x)
 {
 	posicao aux;
 
@@ -521,7 +554,7 @@ int quantidadeMax(vector<vector<celula> > &dama, posicao &peca, posicao &anterio
 	return x;
 }
 //pode comer para pc.
-bool Teste(vector<vector<celula> > &dama,posicao &inicial, posicao &final)
+bool Teste(vector<vector<celula> > &dama,posicao inicial, posicao final)
 {
 	if(testarRange(inicial,final))
 	{
@@ -545,7 +578,7 @@ bool Teste(vector<vector<celula> > &dama,posicao &inicial, posicao &final)
 	}
 	return false;
 }
-int calcularY(posicao inicial, vector<string> caminho,vector<vector<celula> > &damaB)
+int calcularY(posicao inicial, vector<string> caminho,vector<vector<celula> > damaB)
 {
 	if(caminho.size()==0)
 	{
@@ -833,30 +866,42 @@ int avaliarCasasVizinhas(vector<vector<celula> > damaB, posicao inicial, string 
 	//NO
 	aux.x = inicial.x-1;
 	aux.y = inicial.y-1;
-	if((damaB[aux.x][aux.y].getValor()=='x'||damaB[aux.x][aux.y].getValor()=='X')&&movimento!="NO")
+	if(testarRange(aux,aux))
 	{
-		posicoes.push_back(aux);
+		if((damaB[aux.x][aux.y].getValor()=='x'||damaB[aux.x][aux.y].getValor()=='X')&&movimento!="NO")
+		{
+			posicoes.push_back(aux);
+		}
 	}
 	//NE
 	aux.x = inicial.x-1;
 	aux.y = inicial.y+1;
-	if((damaB[aux.x][aux.y].getValor()=='x'||damaB[aux.x][aux.y].getValor()=='X')&&movimento!="NE")
+	if(testarRange(aux,aux))
 	{
-		posicoes.push_back(aux);
+		if((damaB[aux.x][aux.y].getValor()=='x'||damaB[aux.x][aux.y].getValor()=='X')&&movimento!="NE")
+		{
+			posicoes.push_back(aux);
+		}
 	}
 	//SO
 	aux.x = inicial.x+1;
 	aux.y = inicial.y-1;
-	if((damaB[aux.x][aux.y].getValor()=='x'||damaB[aux.x][aux.y].getValor()=='X')&&movimento!="SO")
+	if(testarRange(aux,aux))
 	{
-		posicoes.push_back(aux);
+		if((damaB[aux.x][aux.y].getValor()=='x'||damaB[aux.x][aux.y].getValor()=='X')&&movimento!="SO")
+		{
+			posicoes.push_back(aux);
+		}
 	}
 	//SE
 	aux.x = inicial.x+1;
 	aux.y = inicial.y+1;
-	if((damaB[aux.x][aux.y].getValor()=='x'||damaB[aux.x][aux.y].getValor()=='X')&&movimento!="SE")
+	if(testarRange(aux,aux))
 	{
-		posicoes.push_back(aux);
+		if((damaB[aux.x][aux.y].getValor()=='x'||damaB[aux.x][aux.y].getValor()=='X')&&movimento!="SE")
+		{
+			posicoes.push_back(aux);
+		}
 	}
 	//realizar o movimento no tabuleiro e avaliar o comportamento das peças
 	//verificar as peças
@@ -881,7 +926,7 @@ int evitarPecaSejaComida(vector<vector<celula> > damaB, posicao inicial, string 
 	int valor=0;
 	//onde a celula se encontra?
 	atual = simples(inicial,movimento);
-	//lista as peças alaidas ao redor da celula
+	//lista as peças aliadas ao redor da celula
 	copia = damaB;
 	copia[atual.x][atual.y].setValor(' ');
 	//NO
@@ -988,7 +1033,55 @@ posicao escolherPeca(vector<posicao> pecas, vector<vector<celula> > dama)
 	}
 }
 //percorrer, definir se a celula é simples ou complexa e fazer uma função para cada percorrimento.
-
+void autoMovimentacaoSimples(vector<vector<celula> > &dama, posicao peca)
+{
+	char auxiliar;
+	vector<string> caminho = dama[peca.x][peca.y].getCaminho();
+	auxiliar=dama[peca.x][peca.y].getValor();
+	dama[peca.x][peca.y].setValor(' ');
+	posicao aux = simples(peca,caminho[0]);
+	dama[aux.x][aux.y].setValor(auxiliar);
+}
+void autoMovimentacaoComplexa(vector<vector<celula> > &dama, posicao peca)
+{
+	char auxiliar;
+	posicao final;
+	bool flag = true;
+	vector<string> caminho = dama[peca.x][peca.y].getCaminho();
+	for(unsigned int i=0; i<caminho.size();i++)
+	{
+		//comer NE
+		if(caminho[i]=="NE")
+		{
+			final.x = peca.x -2;
+			final.y= peca.y +2;
+			comerPecaSimples(dama,peca,final,flag);
+		}
+		//comer NO
+		else if(caminho[i]=="NO")
+		{
+			final.x = peca.x -2;
+			final.y= peca.y -2;
+			comerPecaSimples(dama,peca,final,flag);
+		}
+		//comer SE
+		else if(caminho[i]=="SE")
+		{
+			final.x = peca.x +2;
+			final.y= peca.y +2;
+			comerPecaSimples(dama,peca,final,flag);
+		}
+		//comer SO
+		else if(caminho[i]=="SO")
+		{
+			final.x = peca.x +2;
+			final.y= peca.y -2;
+			comerPecaSimples(dama,peca,final,flag);
+		}
+		peca.x = final.x;
+		peca.y = final.y;
+	}
+}
 
 
 

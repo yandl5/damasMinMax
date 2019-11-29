@@ -10,7 +10,8 @@ class celula
 private:
     //conteúdo da celula
     char valor;
-    char tipo;
+    //tipo movimento true para simples, false para complexo;
+    bool tipo;
 	//quantidade de peças que a celula é capaz de comer
 	int x;
 	//valor da penalidade da posição final
@@ -28,13 +29,13 @@ public:
     ~celula();
     //sets e gets
     void setValor(char Valor);
-    void setTipo(char Tipo);
+    void setTipo(bool Tipo);
 	void setX(int xx);
 	void setY(int yy);
 	void setZ(int zz);
 	void setCaminho(vector<string> Caminho);
     char getValor();
-    char getTipo();
+    bool getTipo();
 	int getX();
 	int getY();
 	int getZ();

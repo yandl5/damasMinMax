@@ -5,7 +5,7 @@ void celula::setValor(char Valor)
 {
     valor=Valor;
 }
-void celula::setTipo(char Tipo)
+void celula::setTipo(bool Tipo)
 {
     tipo=Tipo;
 }
@@ -29,7 +29,7 @@ char celula::getValor()
 {
     return valor;
 }
-char celula::getTipo()
+bool celula::getTipo()
 {
     return tipo;
 }
