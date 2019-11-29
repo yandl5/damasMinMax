@@ -27,3 +27,7 @@ posicao percorrerCaminho(posicao aux, vector<string> caminho, vector<vector<celu
 int verificarPosicaoFinalPeca(posicao aux,vector<vector<celula> > &damaB);
 vector<string> pecaMovimentavel(vector<vector<celula> > dama, posicao aux);
 string acharMovimento(vector<vector<celula> > damaB, posicao auxiliar,vector<string>,int &maior);
+int avaliarCasasVizinhas(vector<vector<celula> > damaB, posicao inicial, string movimento);
+int evitarPecaSejaComida(vector<vector<celula> > damaB, posicao inicial, string movimento);
+posicao simples(posicao inicial,string movimento);
+posicao escolherPeca(vector<posicao> pecas, vector<vector<celula> > dama);

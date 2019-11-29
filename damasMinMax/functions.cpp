@@ -409,6 +409,8 @@ void pcPlay(vector<vector<celula> > &dama)
 //gerenciador base do pc
 void gerenciadorPC(vector<vector<celula> > &dama)
 {
+	//melhor peça
+	posicao melhorPeca;
 	//posicao auxiliar para movimentação simples
 	vector<string> posicoes;
 	//primeiro é necessário contabilizar todas as peças x ou X do tabuleiro, serão anotadas em um vector<posicao>
@@ -430,6 +432,7 @@ void gerenciadorPC(vector<vector<celula> > &dama)
 				int maior;
 				iaCaminho.push_back(acharMovimento(damaB,pecasPC[i],posicoes,maior));
 				dama[pecasPC[i].x][pecasPC[i].y].setZ(maior);
+				dama[pecasPC[i].x][pecasPC[i].y].setCaminho(iaCaminho);
 			}
 			else
 			{
@@ -445,6 +448,9 @@ void gerenciadorPC(vector<vector<celula> > &dama)
 		iaCaminho.clear();
 		damaB=dama;
 	}
+	//eleger a melhor peça, com base na pontuação
+	melhorPeca = escolherPeca(pecasPC,dama);
+	cout<<"Peça escolhida "<< melhorPeca.x<<" "<<melhorPeca.y<<" | "<<dama[melhorPeca.x][melhorPeca.y].getZ()<<endl;
 }
 //lista todas as peças do pc em campo
 void listarPecas(vector<vector<celula> > &dama, vector<posicao> &pecasPC)
@@ -646,7 +652,7 @@ int verificarPosicaoFinalPeca(posicao aux,vector<vector<celula> > &damaB)
 	oposta.x=aux.x-1;
 	oposta.y=aux.y+1;
 	peca.x=aux.x+1;
-	peca.y=aux.x-1;
+	peca.y=aux.y-1;
 	if(validadorComerPeca(damaB,peca,oposta))
 	{
 		comerPecaSimples(damaB,peca,oposta,a);
@@ -719,7 +725,9 @@ string acharMovimento(vector<vector<celula> > damaB, posicao aux, vector<string>
 	posicao envio;
 	vector<int> scores;
 	vector<vector<celula> > copia = damaB;
+	vector<vector<celula> > copiaB = damaB;
 	char valorInicial;
+	int a,b,c;
 	//verificar os scores de cada movimentação
 	for(unsigned int i=0;i<posicoes.size();i++)
 	{
@@ -732,7 +740,11 @@ string acharMovimento(vector<vector<celula> > damaB, posicao aux, vector<string>
 				valorInicial = copia[aux.x][aux.y].getValor();
 				copia[aux.x][aux.y].setValor(' ');
 				copia[envio.x][envio.y].setValor(valorInicial);
-				scores.push_back(verificarPosicaoFinalPeca(envio,copia));
+				copiaB=copia;
+				a = verificarPosicaoFinalPeca(envio,copia);
+				b = avaliarCasasVizinhas(copia,aux,posicoes[i]);
+				c = evitarPecaSejaComida(copia,aux, posicoes[i]);
+				scores.push_back(a+b+c);
 			}
 		}
 		else if(posicoes[i]=="SE")
@@ -744,7 +756,11 @@ string acharMovimento(vector<vector<celula> > damaB, posicao aux, vector<string>
 				valorInicial = copia[aux.x][aux.y].getValor();
 				copia[aux.x][aux.y].setValor(' ');
 				copia[envio.x][envio.y].setValor(valorInicial);
-				scores.push_back(verificarPosicaoFinalPeca(envio,copia));
+				copiaB=copia;
+				a = verificarPosicaoFinalPeca(envio,copia);
+				b = avaliarCasasVizinhas(copia,aux,posicoes[i]);
+				c = evitarPecaSejaComida(copia,aux, posicoes[i]);
+				scores.push_back(a+b+c);
 			}
 		}
 		else if(posicoes[i]=="NO")
@@ -756,7 +772,11 @@ string acharMovimento(vector<vector<celula> > damaB, posicao aux, vector<string>
 				valorInicial = copia[aux.x][aux.y].getValor();
 				copia[aux.x][aux.y].setValor(' ');
 				copia[envio.x][envio.y].setValor(valorInicial);
-				scores.push_back(verificarPosicaoFinalPeca(envio,copia));
+				copiaB=copia;
+				a = verificarPosicaoFinalPeca(envio,copia);
+				b = avaliarCasasVizinhas(copia,aux,posicoes[i]);
+				c = evitarPecaSejaComida(copia,aux, posicoes[i]);
+				scores.push_back(a+b+c);
 			}
 		}
 		else if(posicoes[i]=="SO")
@@ -768,7 +788,11 @@ string acharMovimento(vector<vector<celula> > damaB, posicao aux, vector<string>
 				valorInicial = copia[aux.x][aux.y].getValor();
 				copia[aux.x][aux.y].setValor(' ');
 				copia[envio.x][envio.y].setValor(valorInicial);
-				scores.push_back(verificarPosicaoFinalPeca(envio,copia));
+				copiaB=copia;
+				a = verificarPosicaoFinalPeca(envio,copia);
+				b = avaliarCasasVizinhas(copia,aux,posicoes[i]);
+				c = evitarPecaSejaComida(copia,aux, posicoes[i]);
+				scores.push_back(a+b+c);
 			}
 		}
 		copia=damaB;
@@ -782,6 +806,7 @@ string acharMovimento(vector<vector<celula> > damaB, posicao aux, vector<string>
 		{
 			maiores.clear();
 			maiores.push_back(posicoes[i]);
+			maior = scores[i];
 		}
 		else if(scores[i]==maior)
 		{
@@ -796,10 +821,173 @@ string acharMovimento(vector<vector<celula> > damaB, posicao aux, vector<string>
 	else
 	{
 		dado sorteio(maiores.size());
-		return " ";
 		return maiores[sorteio.Jogar()-1];
 	}
 }
+int avaliarCasasVizinhas(vector<vector<celula> > damaB, posicao inicial, string movimento)
+{
+	vector<posicao> posicoes;
+	posicao aux;
+	int valor=0;
+	//anotar inicialmente todas as peças ao redor da peça
+	//NO
+	aux.x = inicial.x-1;
+	aux.y = inicial.y-1;
+	if((damaB[aux.x][aux.y].getValor()=='x'||damaB[aux.x][aux.y].getValor()=='X')&&movimento!="NO")
+	{
+		posicoes.push_back(aux);
+	}
+	//NE
+	aux.x = inicial.x-1;
+	aux.y = inicial.y+1;
+	if((damaB[aux.x][aux.y].getValor()=='x'||damaB[aux.x][aux.y].getValor()=='X')&&movimento!="NE")
+	{
+		posicoes.push_back(aux);
+	}
+	//SO
+	aux.x = inicial.x+1;
+	aux.y = inicial.y-1;
+	if((damaB[aux.x][aux.y].getValor()=='x'||damaB[aux.x][aux.y].getValor()=='X')&&movimento!="SO")
+	{
+		posicoes.push_back(aux);
+	}
+	//SE
+	aux.x = inicial.x+1;
+	aux.y = inicial.y+1;
+	if((damaB[aux.x][aux.y].getValor()=='x'||damaB[aux.x][aux.y].getValor()=='X')&&movimento!="SE")
+	{
+		posicoes.push_back(aux);
+	}
+	//realizar o movimento no tabuleiro e avaliar o comportamento das peças
+	//verificar as peças
+	vector<vector<celula> > copia = damaB;
+	for(unsigned int i=0;i<posicoes.size();i++)
+	{
+		valor = verificarPosicaoFinalPeca(posicoes[i],copia);
+		if(valor!=2)
+		{
+			return valor;
+		}
+		copia=damaB;
+	}
+	return 0;
+}
+int evitarPecaSejaComida(vector<vector<celula> > damaB, posicao inicial, string movimento)
+{
+	posicao aux;
+	posicao atual;
+	vector<posicao> posicoes;
+	vector<vector<celula> > copia;
+	int valor=0;
+	//onde a celula se encontra?
+	atual = simples(inicial,movimento);
+	//lista as peças alaidas ao redor da celula
+	copia = damaB;
+	copia[atual.x][atual.y].setValor(' ');
+	//NO
+	aux.x = atual.x-1;
+	aux.y = atual.y-1;
+	if(damaB[aux.x][aux.y].getValor()=='x'||damaB[aux.x][aux.y].getValor()=='X')
+	{
+		posicoes.push_back(aux);
+	}
+	//NE
+	aux.x = atual.x-1;
+	aux.y = atual.y+1;
+	if(damaB[aux.x][aux.y].getValor()=='x'||damaB[aux.x][aux.y].getValor()=='X')
+	{
+		posicoes.push_back(aux);
+	}
+	//SO
+	aux.x = atual.x+1;
+	aux.y = atual.y-1;
+	if(damaB[aux.x][aux.y].getValor()=='x'||damaB[aux.x][aux.y].getValor()=='X')
+	{
+		posicoes.push_back(aux);
+	}
+	//SE
+	aux.x = atual.x+1;
+	aux.y = atual.y+1;
+	if(damaB[aux.x][aux.y].getValor()=='x'||damaB[aux.x][aux.y].getValor()=='X')
+	{
+		posicoes.push_back(aux);
+	}
+	//verificar se as posições obtidas são válidas
+	for(unsigned int i=0;i<posicoes.size();i++)
+	{
+		if(!testarRange(posicoes[i],posicoes[i]))
+		{
+			posicoes.erase(posicoes.begin()+i);
+		}
+	}
+	//com as posições listadas e a celula apagada vamos verificar se alguma dessas peças pode ser comida
+	vector<vector<celula> > envio = copia;
+	for(unsigned int i=0; i<posicoes.size();i++)
+	{
+		valor = verificarPosicaoFinalPeca(posicoes[i],envio);
+		if(valor!=2)
+		{
+			return 2;
+		}
+		envio=copia;
+	}
+	return 0;
+}
+posicao simples(posicao inicial,string movimento)
+{
+	posicao aux;
+	if(movimento=="NE")
+	{
+		aux.x=inicial.x-1;
+		aux.y=inicial.y+1;
+	}
+	else if(movimento=="NO")
+	{
+		aux.x=inicial.x-1;
+		aux.y=inicial.y-1;
+	}
+	else if(movimento=="SE")
+	{
+		aux.x=inicial.x+1;
+		aux.y=inicial.y+1;
+	}
+	else if(movimento=="SO")
+	{
+		aux.x=inicial.x+1;
+		aux.y=inicial.y-1;
+	}
+	return aux;
+}
+posicao escolherPeca(vector<posicao> pecas, vector<vector<celula> > dama)
+{
+	int maior;
+	vector<posicao> maiores;
+	maior = dama[pecas[0].x][pecas[0].y].getZ();
+	for(unsigned int i=0;i<pecas.size();i++)
+	{
+		if(dama[pecas[i].x][pecas[i].y].getZ()>maior)
+		{
+			maiores.clear();
+			maiores.push_back(pecas[i]);
+			maior = dama[pecas[i].x][pecas[i].y].getZ();
+		}
+		else if(dama[pecas[i].x][pecas[i].y].getZ()==maior)
+		{
+			maiores.push_back(pecas[i]);
+		}
+	}
+	//com os maiores em mãos caso o tamanho do vector seja maior que 1, desempate por aleatoriedade
+	if(maiores.size()==1)
+	{
+		return maiores[0];
+	}
+	else
+	{
+		dado sorteio(maiores.size());
+		return maiores[sorteio.Jogar()-1];
+	}
+}
+//percorrer, definir se a celula é simples ou complexa e fazer uma função para cada percorrimento.
 
 
 
